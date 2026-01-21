@@ -5,8 +5,11 @@ export const typeOrmConfig = (
   configService: ConfigService,
 ): TypeOrmModuleOptions => ({
   type: 'postgres',
-  url: configService.get<string>('DATABASE_URL'),
+  url: configService.getOrThrow<string>('DATABASE_URL'),
   autoLoadEntities: true,
   synchronize: true,
-  ssl: { rejectUnauthorized: false },
+  ssl: false,
+  extra: {
+    ssl: { rejectUnauthorized: false },
+  },
 });
