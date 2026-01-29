@@ -20,7 +20,7 @@ export class Lead {
   email: string;
 
   @Column({ nullable: true })
-  iphone?: string;
+  phone?: string;
 
   @Column({ default: 'manual' })
   source: 'manual' | 'external';
