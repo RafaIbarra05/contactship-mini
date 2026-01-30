@@ -21,13 +21,13 @@ export class LeadsService {
     });
     if (exists) throw new ConflictException('Lead already exist');
 
-    const Lead = this.LeadsRepo.create({
+    const lead = this.LeadsRepo.create({
       fullName: dto.fullName,
       email: dto.email,
       phone: dto.phone,
       source: 'manual',
     });
-    return this.LeadsRepo.save(Lead);
+    return this.LeadsRepo.save(lead);
   }
   getLeads() {
     return this.LeadsRepo.find({ order: { createdAt: 'DESC' } });
