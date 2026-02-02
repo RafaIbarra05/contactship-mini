@@ -9,6 +9,7 @@ import { QueueModule } from './queue/queue.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
+import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { typeOrmConfig } from './config/typeorm.config';
         typeOrmConfig(configService),
     }),
     LeadsModule,
+    RedisModule,
     AuthModule,
     SyncModule,
     AiModule,
