@@ -41,14 +41,12 @@ export class LeadsService {
 
     const cachedLead = await this.redis.get(cacheKey);
     if (cachedLead) {
-      try {
-        return JSON.parse(cachedLead) as Lead;
-      } catch {
-        await this.LeadsRepo.delete(cacheKey);
-      }
+      console.log('[CACHE] Lead returned from Redis');
+      return JSON.parse(cachedLead) as Lead;
     }
 
     const lead = await this.LeadsRepo.findOne({ where: { id } });
+    console.log('[DB] Lead returned from database');
     if (!lead) throw new NotFoundException('Lead not found');
 
     await this.redis.set(cacheKey, JSON.stringify(lead), 'EX', 60);
