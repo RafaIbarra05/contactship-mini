@@ -52,4 +52,22 @@ export class LeadsService {
     await this.redis.set(cacheKey, JSON.stringify(lead), 'EX', 60);
     return lead;
   }
+
+  async createdExternalId(data: {
+    externalId: string;
+    fullname: string;
+    email: string;
+    phone?: string;
+  }) {
+    const exists = await this.LeadsRepo.findOne({
+      where: { externalId: data.externalId },
+    });
+    if (exists) return;
+
+    const lead = this.LeadsRepo.create({
+      ...data,
+      source: 'external',
+    });
+    await this.LeadsRepo.save(lead);
+  }
 }
