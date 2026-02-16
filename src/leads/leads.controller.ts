@@ -22,4 +22,9 @@ export class LeadsController {
   getLeadById(@Param('id') id: string) {
     return this.leadsService.getLeadById(id);
   }
+
+  @Post('leads/:id/summarize')
+  summarizeLead(@Param('id') id: string) {
+    return this.leadsService.enqueueSumarizeLead(id);
+  }
 }
