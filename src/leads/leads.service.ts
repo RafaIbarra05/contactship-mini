@@ -9,6 +9,8 @@ import { Lead } from './entities/lead.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLeadDto } from './dto/create-lead-dto';
 import Redis from 'ioredis';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class LeadsService {
@@ -17,6 +19,8 @@ export class LeadsService {
     private readonly LeadsRepo: Repository<Lead>,
     @Inject('REDIS_CLIENT')
     private readonly redis: Redis,
+    @InjectQueue('leads')
+    private readonly leadsQueue: Queue,
   ) {}
 
   async createLead(dto: CreateLeadDto) {
@@ -69,5 +73,40 @@ export class LeadsService {
       source: 'external',
     });
     await this.LeadsRepo.save(lead);
+  }
+
+  async getLeadByIdNoCache(id: string) {
+    const lead = await this.LeadsRepo.findOne({ where: { id } });
+    if (!lead) throw new NotFoundException('Lead not found');
+    return lead;
+  }
+
+  async saveLeadSummary(
+    id: string,
+    data: { summary: string; next_action: string },
+  ) {
+    const lead = await this.getLeadByIdNoCache(id);
+
+    lead.summary = data.summary;
+    lead.nextAction = data.next_action;
+
+    await this.LeadsRepo.save(lead);
+  }
+
+  async enqueueSumarizeLead(leadId: string) {
+    await this.getLeadByIdNoCache(leadId);
+    const job = await this.leadsQueue.add(
+      'summarize-lead',
+      { leadId },
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 1000 },
+        removeOnComplete: true,
+        removeOnFail: false,
+        jobId: `summarize:${leadId}`,
+      },
+    );
+
+    return { jobId: job.id };
   }
 }
