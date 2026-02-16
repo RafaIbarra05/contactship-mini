@@ -13,7 +13,7 @@ export class SummarizeLeadProcessor extends WorkerHost {
   private readonly logger = new Logger(SummarizeLeadProcessor.name);
   constructor(
     private readonly leadsService: LeadsService,
-    private readonly iaService: AiService,
+    private readonly aiService: AiService,
     @Inject('REDIS_CLIENT')
     private readonly redis: Redis,
   ) {
@@ -28,7 +28,7 @@ export class SummarizeLeadProcessor extends WorkerHost {
 
     const lead = await this.leadsService.getLeadByIdNoCache(leadId);
 
-    const result = await this.iaService.summarizeLead({
+    const result = await this.aiService.summarizeLead({
       fullName: lead.fullName,
       email: lead.email,
       phone: lead.phone,
@@ -36,7 +36,7 @@ export class SummarizeLeadProcessor extends WorkerHost {
     });
     await this.leadsService.saveLeadSummary(leadId, result);
 
-    await this.redis.del(`lead:${lead.id}`);
+    await this.redis.del(`lead:${leadId}`);
 
     this.logger.log(`Summarized completed for leadId:${leadId}`);
   }

@@ -103,7 +103,7 @@ export class LeadsService {
         backoff: { type: 'exponential', delay: 1000 },
         removeOnComplete: true,
         removeOnFail: false,
-        jobId: `summarize:${leadId}`,
+        jobId: `summarize-lead-${leadId}`,
       },
     );
 

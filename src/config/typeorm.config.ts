@@ -8,7 +8,7 @@ export const typeOrmConfig = (
   url: configService.getOrThrow<string>('DATABASE_URL'),
   autoLoadEntities: true,
   synchronize: true,
-  ssl: false,
+  ssl: { rejectUnauthorized: false },
   extra: {
     ssl: { rejectUnauthorized: false },
   },
