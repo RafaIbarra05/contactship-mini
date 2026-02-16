@@ -13,17 +13,17 @@ export class LeadsController {
     return this.leadsService.createLead(dto);
   }
 
-  @Get('leads')
+  @Get()
   getLeads() {
     return this.leadsService.getLeads();
   }
 
-  @Get('lead/:id')
+  @Get(':id')
   getLeadById(@Param('id') id: string) {
     return this.leadsService.getLeadById(id);
   }
 
-  @Post('leads/:id/summarize')
+  @Post(':id/summarize')
   summarizeLead(@Param('id') id: string) {
     return this.leadsService.enqueueSumarizeLead(id);
   }
