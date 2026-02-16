@@ -1,7 +1,8 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
+import { AiService } from 'src/ai/ai.service';
 import { LeadsService } from 'src/leads/leads.service';
 
 type SummarizedLeadJob = {
@@ -9,7 +10,7 @@ type SummarizedLeadJob = {
 };
 @Processor('leads')
 export class SummarizeLeadProcessor extends WorkerHost {
-  private readonly Logger = new Logger(SummarizeLeadProcessor.name);
+  private readonly logger = new Logger(SummarizeLeadProcessor.name);
   constructor(
     private readonly leadsService: LeadsService,
     private readonly iaService: AiService,
@@ -23,7 +24,7 @@ export class SummarizeLeadProcessor extends WorkerHost {
     if (job.name !== 'summarize-lead') return;
 
     const { leadId } = job.data;
-    this.Logger.log(`Processing summarize-lead for leadId=${leadId}`);
+    this.logger.log(`Processing summarize-lead for leadId=${leadId}`);
 
     const lead = await this.leadsService.getLeadByIdNoCache(leadId);
 
@@ -35,8 +36,8 @@ export class SummarizeLeadProcessor extends WorkerHost {
     });
     await this.leadsService.saveLeadSummary(leadId, result);
 
-    await this.redis.del(`lead:${lead}`);
+    await this.redis.del(`lead:${lead.id}`);
 
-    this.Logger.log(`Summarized completed for leadId:${leadId}`);
+    this.logger.log(`Summarized completed for leadId:${leadId}`);
   }
 }
